@@ -1,10 +1,21 @@
+# Normalize text while keeping Windows source files compatible with local tools.
 * text=auto
-*.asm text eol=crlf
-*.inc text eol=crlf
+
+# MASM source and headers. GitHub can otherwise mistake .inc files for BitBake.
+*.asm text eol=crlf linguist-language=Assembly
+*.inc text eol=crlf linguist-language=Assembly
+
+# Visual Studio projects and Windows launchers.
 *.sln text eol=crlf
 *.vcxproj text eol=crlf
 *.filters text eol=crlf
 *.cmd text eol=crlf
+*.bat text eol=crlf
 *.ps1 text eol=crlf
+
+# Scripts and documentation.
 *.py text eol=lf
 *.md text eol=lf
+
+# Generated board positions used by the GUI tests.
+gui_fixtures.inc linguist-generated=true
