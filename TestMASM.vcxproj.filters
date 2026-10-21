@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Archivos de origen">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="board.asm">
+      <Filter>Archivos de origen</Filter>
+    </MASM>
+    <MASM Include="gui_main.asm">
+      <Filter>Archivos de origen</Filter>
+    </MASM>
+    <MASM Include="move_validator.asm">
+      <Filter>Archivos de origen</Filter>
+    </MASM>
+    <MASM Include="main.asm">
+      <Filter>Archivos de origen</Filter>
+    </MASM>
+    <MASM Include="ui_console.asm">
+      <Filter>Archivos de origen</Filter>
+    </MASM>
+    <MASM Include="sync_manager.asm">
+      <Filter>Archivos de origen</Filter>
+    </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="arChess.inc" />
+  </ItemGroup>
+</Project>

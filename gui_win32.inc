@@ -1,0 +1,75 @@
+; Minimal Win32 declarations, deliberately separate from Irvine32.
+WNDCLASSX STRUCT
+ style DWORD ?
+ lpfnWndProc DWORD ?
+ cbClsExtra DWORD ?
+ cbWndExtra DWORD ?
+ hInstance DWORD ?
+ hIcon DWORD ?
+ hCursor DWORD ?
+ hbrBackground DWORD ?
+ lpszMenuName DWORD ?
+ lpszClassName DWORD ?
+WNDCLASSX ENDS
+WINMSG STRUCT
+ hwnd DWORD ?
+ message DWORD ?
+ wParam DWORD ?
+ lParam DWORD ?
+ time DWORD ?
+ pointX DWORD ?
+ pointY DWORD ?
+ private DWORD ?
+WINMSG ENDS
+RECTX STRUCT
+ left SDWORD ?
+ top SDWORD ?
+ right SDWORD ?
+ bottom SDWORD ?
+RECTX ENDS
+PAINTX STRUCT
+ hdc DWORD ?
+ erase DWORD ?
+ rect RECTX <>
+ restore DWORD ?
+ incUpdate DWORD ?
+ reserved BYTE 32 DUP(?)
+PAINTX ENDS
+GetModuleHandleA PROTO :DWORD
+LoadCursorA PROTO :DWORD,:DWORD
+RegisterClassA PROTO :DWORD
+CreateWindowExA PROTO :DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD
+ShowWindow PROTO :DWORD,:DWORD
+UpdateWindow PROTO :DWORD
+GetMessageA PROTO :DWORD,:DWORD,:DWORD,:DWORD
+TranslateMessage PROTO :DWORD
+DispatchMessageA PROTO :DWORD
+DefWindowProcA PROTO :DWORD,:DWORD,:DWORD,:DWORD
+DestroyWindow PROTO :DWORD
+PostQuitMessage PROTO :DWORD
+PostMessageA PROTO :DWORD,:DWORD,:DWORD,:DWORD
+GetWindowTextA PROTO :DWORD,:DWORD,:DWORD
+SetTimer PROTO :DWORD,:DWORD,:DWORD,:DWORD
+KillTimer PROTO :DWORD,:DWORD
+BeginPaint PROTO :DWORD,:DWORD
+EndPaint PROTO :DWORD,:DWORD
+InvalidateRect PROTO :DWORD,:DWORD,:DWORD
+CreateFontA PROTO :DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD
+SelectObject PROTO :DWORD,:DWORD
+DeleteObject PROTO :DWORD
+CreateSolidBrush PROTO :DWORD
+FillRect PROTO :DWORD,:DWORD,:DWORD
+DrawTextA PROTO :DWORD,:DWORD,:DWORD,:DWORD,:DWORD
+DrawTextW PROTO :DWORD,:DWORD,:DWORD,:DWORD,:DWORD
+SetBkMode PROTO :DWORD,:DWORD
+CreateCompatibleDC PROTO :DWORD
+CreateCompatibleBitmap PROTO :DWORD,:DWORD,:DWORD
+DeleteDC PROTO :DWORD
+BitBlt PROTO :DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD
+Ellipse PROTO :DWORD,:DWORD,:DWORD,:DWORD,:DWORD
+CreatePen PROTO :DWORD,:DWORD,:DWORD
+GetStockObject PROTO :DWORD
+CreateThread PROTO :DWORD,:DWORD,:DWORD,:DWORD,:DWORD,:DWORD
+lstrcpynA PROTO :DWORD,:DWORD,:DWORD
+; Irvine has a SetTextColor procedure; use the GDI import under a local alias.
+GdiSetTextColor PROTO STDCALL :DWORD,:DWORD

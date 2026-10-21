@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{151ee977-a2de-4d78-b56d-9ef65257ba1f}</ProjectGuid>
+    <RootNamespace>TestMASM</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Debug'">true</UseDebugLibraries>
+    <UseDebugLibraries Condition="'$(Configuration)'=='Release'">false</UseDebugLibraries>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"
+            Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')"
+            Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros">
+    <IrvineDir Condition="'$(IrvineDir)'==''">C:\Irvine</IrvineDir>
+    <RunGuiTests Condition="'$(RunGuiTests)'==''">false</RunGuiTests>
+    <ChessInterface Condition="'$(ChessInterface)'==''">GUI</ChessInterface>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetName>arChess</TargetName>
+    <TargetName Condition="'$(ChessInterface)'=='Console'">arChess-console</TargetName>
+    <TargetName Condition="'$(RunGuiTests)'=='true'">arChess-tests</TargetName>
+    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)$(Configuration)\obj\$(ChessInterface)\</IntDir>
+    <IntDir Condition="'$(RunGuiTests)'=='true'">$(ProjectDir)$(Configuration)\obj-tests\</IntDir>
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <MASM>
+      <IncludePaths>$(ProjectDir);$(IrvineDir);%(IncludePaths)</IncludePaths>
+      <PreprocessorDefinitions Condition="'$(RunGuiTests)'=='true'">GUI_TEST=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </MASM>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <SubSystem Condition="'$(ChessInterface)'=='Console'">Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(IrvineDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Irvine32.lib;kernel32.lib;user32.lib;gdi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <MASM Include="board.asm" />
+    <MASM Include="gui_main.asm" Condition="'$(ChessInterface)'!='Console'" />
+    <MASM Include="main.asm" Condition="'$(ChessInterface)'=='Console'" />
+    <MASM Include="ui_console.asm" Condition="'$(ChessInterface)'=='Console'" />
+    <MASM Include="move_validator.asm" />
+    <MASM Include="sync_manager.asm" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitignore" />
+    <None Include="arChess.inc" />
+    <None Include="gui_win32.inc" />
+    <None Include="gui_tests.inc" />
+    <None Include="gui_fixtures.inc" />
+    <None Include="firebase_multiplayer.py" />
+    <None Include="requirements.txt" />
+    <None Include="iniciar_juego.cmd" />
+    <None Include="iniciar_juego.ps1" />
+    <None Include="iniciar_middleware_firebase.cmd" />
+    <None Include="iniciar_consola.cmd" />
+    <None Include="README.md" />
+    <None Include="README.es.md" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
+  </ImportGroup>
+  <Target Name="CheckIrvineFiles" BeforeTargets="PrepareForBuild">
+    <Error Condition="'$(ChessInterface)'!='GUI' and '$(ChessInterface)'!='Console'" Text="ChessInterface must be GUI or Console." />
+    <Error Condition="'$(RunGuiTests)'=='true' and '$(ChessInterface)'=='Console'" Text="RunGuiTests requires the GUI interface." />
+    <Error Condition="!Exists('$(IrvineDir)\Irvine32.inc')"
+           Text="Irvine32.inc not found. Set the IrvineDir MSBuild property to your Irvine32 directory." />
+    <Error Condition="!Exists('$(IrvineDir)\Irvine32.lib')"
+           Text="Irvine32.lib not found. Set the IrvineDir MSBuild property to your Irvine32 directory." />
+  </Target>
+</Project>

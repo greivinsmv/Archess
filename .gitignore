@@ -1,0 +1,55 @@
+# Visual Studio and build output
+.vs/
+Debug/
+Release/
+x64/
+Win32/
+*.obj
+*.pdb
+*.ilk
+*.idb
+*.tlog
+*.exe
+*.exe.recipe
+*.vcxproj.user
+*.suo
+*.VC.db
+*.VC.opendb
+
+# Python environments and downloaded packages
+.venv/
+.runtime*/
+.firebase-deps*/
+wheels/
+__pycache__/
+*.py[cod]
+
+# Credentials and local configuration
+serviceAccountKey.json
+*service-account*.json
+*serviceAccount*.json
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.pfx
+*.key
+
+# Match state, process locks and logs
+logs/
+*.log
+launcher.lock
+middleware.lock
+middleware_ready.json
+sync_*.txt
+sync_*.bin
+sync_*.id
+sync_*.tmp
+salida.txt
+
+# Original packages and operating-system files
+*.rar
+*.zip
+.DS_Store
+Thumbs.db

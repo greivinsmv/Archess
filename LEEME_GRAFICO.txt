@@ -1,0 +1,10 @@
+arChess - MASM / Win32
+
+Las instrucciones de compilacion, controles y configuracion estan en README.es.md.
+English documentation: README.md.
+
+Inicio local: compila Debug | x86 y abre iniciar_juego.cmd.
+Firebase es opcional. Configura primero el entorno y las variables indicadas en
+el README; despues usa iniciar_juego.cmd -Online.
+
+Las credenciales se guardan fuera de la carpeta del proyecto.
