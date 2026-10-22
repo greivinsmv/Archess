@@ -122,7 +122,13 @@ The Python bridge has offline tests for game transactions, mailbox responses and
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
-The 23 tests passed with the real `python-chess` library and simulated Firebase operations. They do not read a key or contact a database.
+The 27 tests passed with the real `python-chess` library and simulated Firebase operations. They do not read a key or contact a database.
+
+The launcher's readiness checks can also be tested with a simulated process, without opening the game or connecting to Firebase:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tests\test_launcher.ps1
+```
 
 `gui_main.asm` includes a `GUI_TEST` conditional build that runs selection/movement checks and 153 legal-destination fixtures. These tests call the same procedures used by the graphical client and return a process exit code instead of opening the board.
 

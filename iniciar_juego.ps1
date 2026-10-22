@@ -44,6 +44,31 @@ function Restore-ArChess {
     return $false
 }
 
+function Wait-ArChessMiddlewareReady {
+    param(
+        $Process,
+        [string]$ReadyPath,
+        [ValidateNotNullOrEmpty()][string]$LauncherId,
+        [int]$TimeoutSeconds = 20
+    )
+    $deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
+    do {
+        if ($Process.HasExited) {
+            throw 'No se pudo iniciar el middleware. Revisa logs\middleware_error.log y logs\middleware.log.'
+        }
+        if (Test-Path -LiteralPath $ReadyPath -PathType Leaf) {
+            $info = $null
+            try { $info = Get-Content -LiteralPath $ReadyPath -Raw | ConvertFrom-Json } catch { }
+            # El Python de .venv puede ejecutar un hijo con otro PID en Windows.
+            if ($null -ne $info -and $info.protocol -eq 2 -and $info.launcher_id -ceq $LauncherId) {
+                return
+            }
+        }
+        Start-Sleep -Milliseconds 100
+    } while ([DateTime]::UtcNow -lt $deadline)
+    throw 'El middleware no respondio en el tiempo previsto. Revisa la carpeta logs.'
+}
+
 $ownedMiddleware = $null
 $launcherLock = $null
 try {
@@ -87,19 +112,9 @@ try {
             } catch { $ready = $false }
         }
         if (-not $ready) {
-            $ownedMiddleware = Start-Process -FilePath $pythonPath -ArgumentList @('-u',('"'+$middlewarePath+'"'),'--watch') -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $logDir 'middleware.log') -RedirectStandardError (Join-Path $logDir 'middleware_error.log')
-            $deadline = [DateTime]::UtcNow.AddSeconds(20)
-            while ([DateTime]::UtcNow -lt $deadline) {
-                if ($ownedMiddleware.HasExited) { throw "No se pudo iniciar el middleware. Revisa logs\middleware_error.log y logs\middleware.log." }
-                if (Test-Path -LiteralPath $readyPath) {
-                    try {
-                        $info = Get-Content -LiteralPath $readyPath -Raw | ConvertFrom-Json
-                        if ([int]$info.pid -eq $ownedMiddleware.Id) { $ready = $true; break }
-                    } catch {}
-                }
-                Start-Sleep -Milliseconds 100
-            }
-            if (-not $ready) { throw 'El middleware no respondio en 20 segundos. Revisa la carpeta logs.' }
+            $launcherId = [Guid]::NewGuid().ToString('N')
+            $ownedMiddleware = Start-Process -FilePath $pythonPath -ArgumentList @('-u',('"'+$middlewarePath+'"'),'--watch','--launcher-id',$launcherId) -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $logDir 'middleware.log') -RedirectStandardError (Join-Path $logDir 'middleware_error.log')
+            Wait-ArChessMiddlewareReady -Process $ownedMiddleware -ReadyPath $readyPath -LauncherId $launcherId
         }
     }
     $game = Start-Process -FilePath $gamePath -WorkingDirectory $projectRoot -WindowStyle Normal -PassThru
@@ -110,6 +125,7 @@ try {
     }
     $game.WaitForExit()
 } catch {
+    Write-Host $_.Exception.Message -ForegroundColor Red
     [Windows.Forms.MessageBox]::Show($_.Exception.Message,'arChess - No se pudo iniciar','OK','Error') | Out-Null
 } finally {
     if ($null -ne $ownedMiddleware -and -not $ownedMiddleware.HasExited) { Stop-Process -Id $ownedMiddleware.Id -ErrorAction SilentlyContinue }

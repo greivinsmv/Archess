@@ -122,7 +122,13 @@ El puente de Python incluye pruebas sin conexión para las transacciones de part
 .\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
-Las 23 pruebas pasaron con la biblioteca `python-chess` real y las operaciones de Firebase simuladas. No leen una clave ni se conectan a una base de datos.
+Las 27 pruebas pasaron con la biblioteca `python-chess` real y las operaciones de Firebase simuladas. No leen una clave ni se conectan a una base de datos.
+
+También puedes comprobar la espera de arranque del lanzador con un proceso simulado, sin abrir el juego ni conectar con Firebase:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tests\test_launcher.ps1
+```
 
 `gui_main.asm` incluye una compilación condicional `GUI_TEST` que ejecuta comprobaciones de selección y movimiento y 153 casos de destinos legales. Las pruebas llaman a los mismos procedimientos que utiliza el cliente gráfico y devuelven un código de salida en lugar de abrir el tablero.
 

@@ -230,7 +230,7 @@ def write_response(response, ipc):
     # The binary snapshot is the commit marker, published last.
     atomic_write(ipc / 'sync_state.bin', snapshot(response))
 
-def watch(ipc, interval=.1):
+def watch(ipc, interval=.1, launcher_id=None):
     import msvcrt
     ipc.mkdir(parents=True, exist_ok=True)
     lock = (ipc / 'middleware.lock').open('a+b')
@@ -252,7 +252,11 @@ def watch(ipc, interval=.1):
             (ipc / name).unlink(missing_ok=True)
         except PermissionError:
             raise RuntimeError('Cierra el juego antes de reiniciar el middleware')
-    atomic_write(ipc / 'middleware_ready.json', json.dumps({'pid': os.getpid(), 'protocol': 2}).encode())
+    ready = {'pid': os.getpid(), 'protocol': 2}
+    # A Windows venv can run the interpreter in a child of the process we launched.
+    if launcher_id is not None:
+        ready['launcher_id'] = launcher_id
+    atomic_write(ipc / 'middleware_ready.json', json.dumps(ready).encode())
     print(f'Middleware v2 activo. Esperando solicitudes en {ipc}', flush=True)
     last_raw = None
     last_response = None
@@ -301,11 +305,12 @@ def main():
     parser.add_argument('--request')
     parser.add_argument('--ipc-dir', type=Path, default=ROOT)
     parser.add_argument('--poll-seconds', type=float, default=.1)
+    parser.add_argument('--launcher-id', help='Identifies this watcher startup to its launcher')
     args = parser.parse_args()
     try:
         initialize()
         if args.watch:
-            watch(args.ipc_dir.resolve(), args.poll_seconds)
+            watch(args.ipc_dir.resolve(), args.poll_seconds, launcher_id=args.launcher_id)
         else:
             print(json.dumps(dispatch(json.loads(args.request))))
         return 0

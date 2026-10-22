@@ -312,5 +312,72 @@ class ConfigurationTest(unittest.TestCase):
             start.assert_not_called()
 
 
+class WatcherStartupTest(unittest.TestCase):
+    def capture_ready(self, launcher_id=None):
+        captured = {}
+        locking = Mock()
+        windows_lock = types.SimpleNamespace(LK_NBLCK=1, locking=locking)
+        with tempfile.TemporaryDirectory() as directory:
+            ipc = Path(directory)
+            ready_path = ipc / 'middleware_ready.json'
+            ready_path.write_text(json.dumps({'pid': -1, 'protocol': 2, 'launcher_id': 'old-startup'}))
+
+            def stop_after_ready(_interval):
+                captured.update(json.loads(ready_path.read_text()))
+                raise KeyboardInterrupt
+
+            with (
+                patch.dict(sys.modules, {'msvcrt': windows_lock}),
+                patch.object(backend.time, 'sleep', side_effect=stop_after_ready),
+                patch.object(backend, 'dispatch') as dispatch,
+                contextlib.redirect_stdout(io.StringIO()),
+            ):
+                with self.assertRaises(KeyboardInterrupt):
+                    if launcher_id is None:
+                        backend.watch(ipc)
+                    else:
+                        backend.watch(ipc, launcher_id=launcher_id)
+                dispatch.assert_not_called()
+
+            self.assertFalse(ready_path.exists())
+            self.assertTrue((ipc / 'sync_client.id').read_text().strip())
+        locking.assert_called_once()
+        return captured
+
+    def test_ready_file_identifies_the_current_launcher_startup(self):
+        ready = self.capture_ready('current-launcher-id')
+        self.assertEqual(ready['launcher_id'], 'current-launcher-id')
+        self.assertEqual(ready['pid'], backend.os.getpid())
+        self.assertEqual(ready['protocol'], 2)
+
+    def test_manual_watcher_remains_compatible_without_launcher_id(self):
+        ready = self.capture_ready()
+        self.assertEqual(ready, {'pid': backend.os.getpid(), 'protocol': 2})
+
+    def test_cli_passes_launcher_id_and_poll_options_without_credentials(self):
+        with tempfile.TemporaryDirectory() as directory:
+            arguments = [
+                'firebase_multiplayer.py', '--watch', '--ipc-dir', directory,
+                '--poll-seconds', '0.25', '--launcher-id', 'cli-launcher-id',
+            ]
+            with (
+                patch.object(sys, 'argv', arguments),
+                patch.object(backend, 'initialize') as initialize,
+                patch.object(backend, 'watch') as watch,
+            ):
+                self.assertEqual(backend.main(), 0)
+            initialize.assert_called_once_with()
+            watch.assert_called_once_with(Path(directory).resolve(), 0.25, launcher_id='cli-launcher-id')
+
+    def test_cli_still_supports_manual_watch_without_launcher_id(self):
+        with (
+            patch.object(sys, 'argv', ['firebase_multiplayer.py', '--watch']),
+            patch.object(backend, 'initialize'),
+            patch.object(backend, 'watch') as watch,
+        ):
+            self.assertEqual(backend.main(), 0)
+        watch.assert_called_once_with(backend.ROOT.resolve(), 0.1, launcher_id=None)
+
+
 if __name__ == '__main__':
     unittest.main()
