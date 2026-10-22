@@ -22,7 +22,7 @@ La interfaz está en español. El motor local no incluye todas las reglas de tab
 
 Instala:
 
-- Visual Studio 2022 con **Desarrollo para el escritorio con C++**, herramientas de compilación x86 y un SDK de Windows.
+- Visual Studio con **Desarrollo para el escritorio con C++**, un SDK de Windows y **MSVC v143 — herramientas de compilación de C++ x64/x86 de VS 2022**. El proyecto selecciona `v143`; una versión más reciente del IDE puede requerir instalar ese componente por separado.
 - Los archivos de inclusión y la biblioteca **Irvine32**, instalados por separado.
 
 Abre `TestMASM.sln`, selecciona **Debug | x86** y compila la solución. La ruta predeterminada de Irvine es `C:\Irvine`; si la instalaste en otra carpeta, configura la propiedad MSBuild `IrvineDir`.
@@ -34,6 +34,16 @@ msbuild TestMASM.sln /m /p:Configuration=Debug /p:Platform=x86 /p:IrvineDir="C:\
 ```
 
 El ejecutable gráfico se genera en `Debug\arChess.exe`. Utiliza la configuración x86 incluso en un Windows de 64 bits. El código fuente no incluye Irvine32.
+
+### Problemas de compilación
+
+**MSB8020: no se pueden encontrar las herramientas de compilación para Visual Studio 2022** indica que falta el conjunto de herramientas `v143` seleccionado por el proyecto. En Visual Studio Installer, abre **Modificar → Componentes individuales** e instala **MSVC v143 — herramientas de compilación de C++ x64/x86 de VS 2022**. Puedes conservar tu instalación actual de Visual Studio.
+
+Como alternativa, haz clic derecho en el **proyecto TestMASM → Propiedades**, selecciona **Todas las configuraciones | Win32** y elige un conjunto instalado en **Propiedades de configuración → General → Conjunto de herramientas de plataforma**. Esto modifica `TestMASM.vcxproj`; vuelve a compilar y comprueba el juego con ese conjunto. La compatibilidad con conjuntos más recientes no se ha verificado aquí.
+
+Después de una compilación fallida, Visual Studio puede indicar que no encuentra `Debug\arChess.exe`. Revisa el primer error en **Ver → Salida → Compilación**: el ejecutable solo se genera cuando la compilación termina correctamente.
+
+Si aparece un error por falta de `Irvine32.inc` o `Irvine32.lib`, comprueba que ambos estén instalados en `C:\Irvine` o indica su carpeta mediante `IrvineDir`, como en el comando anterior.
 
 ## Jugar en la misma computadora
 
