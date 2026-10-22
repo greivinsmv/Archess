@@ -22,7 +22,7 @@ The interface is in Spanish. The local engine does not implement every tournamen
 
 Install:
 
-- Visual Studio 2022 with **Desktop development with C++**, x86 build tools and a Windows SDK.
+- Visual Studio with **Desktop development with C++**, a Windows SDK and **MSVC v143 — VS 2022 C++ x64/x86 build tools**. The project selects `v143`; a newer IDE may need this component installed separately.
 - The **Irvine32** include files and library, installed separately.
 
 Open `TestMASM.sln`, select **Debug | x86** and build the solution. The default Irvine directory is `C:\Irvine`; set the `IrvineDir` MSBuild property if your installation is elsewhere.
@@ -34,6 +34,16 @@ msbuild TestMASM.sln /m /p:Configuration=Debug /p:Platform=x86 /p:IrvineDir="C:\
 ```
 
 The graphical executable is `Debug\arChess.exe`. Use the x86 configuration, including on a 64-bit Windows computer. Irvine32 is not bundled with the source.
+
+### Build troubleshooting
+
+**MSB8020: the build tools for Visual Studio 2022 cannot be found** means that the selected `v143` toolset is missing. In Visual Studio Installer, choose **Modify → Individual components** and install **MSVC v143 — VS 2022 C++ x64/x86 build tools**. You can keep your current Visual Studio installation.
+
+Alternatively, right-click the **TestMASM project → Properties**, select **All Configurations | Win32**, and choose an installed toolset under **Configuration Properties → General → Platform Toolset**. This changes `TestMASM.vcxproj`; rebuild and check the game with that toolset. Compatibility with newer toolsets has not been verified here.
+
+After a failed build, Visual Studio may report that it cannot find `Debug\arChess.exe`. Check **View → Output → Build** for the first compilation error: the executable is only created after a successful build.
+
+If the build reports that `Irvine32.inc` or `Irvine32.lib` is missing, check that both files are installed in `C:\Irvine` or set `IrvineDir` to their directory using the command above.
 
 ## Play locally
 
