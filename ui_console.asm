@@ -15,7 +15,7 @@
 
 INCLUDE arChess.inc
 
-INPUT_MAX = 31                         ; maximo de caracteres a leer
+INPUT_MAX = 31                         ; maximo de caracteres a leer posibles
 
 .data
 titulo        BYTE "=== arChess 4.0 ===", 0
